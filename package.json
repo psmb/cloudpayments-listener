@@ -1,0 +1,14 @@
+{
+  "name": "cloudpayments-listener",
+  "version": "1.0.0",
+  "description": "Receive web-hooks from cloudpayments and store them in an EventStore",
+  "main": "app.js",
+  "author": "Dmitri Pisarev",
+  "license": "MIT",
+  "dependencies": {
+    "guid": "^0.0.12"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
