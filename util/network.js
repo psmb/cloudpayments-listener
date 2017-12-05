@@ -1,11 +1,11 @@
 // No, I don't need an npm module for this...
 // Source: https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/
-module.exports = function (url) {
+exports.getContent = function (url) {
     // return new pending promise
     return new Promise((resolve, reject) => {
         // select http or https module, depending on reqested url
         const lib = url.startsWith('https') ? require('https') : require('http');
-        const request = lib.get(url, (response) => {
+        const request = lib.get(url, response => {
             // handle http errors
             if (response.statusCode < 200 || response.statusCode > 299) {
                 reject(new Error('Failed to load page, status code: ' + response.statusCode));
@@ -19,5 +19,19 @@ module.exports = function (url) {
         });
         // handle connection errors of the request
         request.on('error', (err) => reject(err))
+    });
+};
+
+const qs = require('querystring');
+exports.getPost = function (req) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        req.on('data', (chunk) => chunks.push(chunk));
+        req.on('end', () => {
+            const body = Buffer.concat(chunks);
+            const data = qs.parse(body.toString());
+            resolve(data);
+        });
+        req.on('error', (err) => reject(err));
     });
 };

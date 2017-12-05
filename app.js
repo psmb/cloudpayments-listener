@@ -1,48 +1,70 @@
 const http = require('http');
-const qs = require('querystring');
 const Guid = require('guid');
-const getContent = require("./util/getContent.js");
+const network = require("./util/network.js");
 
 
 //
 // Config
 //
 const hostname = '0.0.0.0';
-const port = 3000;
-const eventStoreHostname = '127.0.0.1';
+const port = process.env.PORT || 3000;
+const eventStoreHostname = process.env.ES_HOST || '127.0.0.1';
 
 
-//
-// Commands
-//
-const registerPayment = data => {
-  const guid = Guid.create();
-  const events = [
-    {
-      eventId: guid,
-      eventType: "PaymentSucceeded",
-      data: data
-    }
-  ];
-  
-  const request = http.request({
-    host: eventStoreHostname,
-    port: '2113',
-    path: '/streams/payments',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/vnd.eventstore.events+json'
-    }
+const publishEvent = (stream, eventType, data) => {
+  return new Promise((resolve, reject) => {
+    // TODO: HMAC validation
+    const guid = Guid.create();
+    const events = [
+      {
+        eventId: guid,
+        eventType: eventType,
+        data: data
+      }
+    ];
+    
+    const request = http.request({
+      host: eventStoreHostname,
+      port: '2113',
+      path: '/streams/' + stream,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/vnd.eventstore.events+json'
+      }
+    }, response => {
+      if (response.statusCode < 200 || response.statusCode > 299) {
+        reject(new Error('Failed to publish and event, status code: ' + response.statusCode));
+      } else {
+        resolve(true);
+      }
+    });
+    request.write(JSON.stringify(events));
+    request.end();
   });
-  request.write(JSON.stringify(events));
-  request.end();
-}
+};
+
+
+const handleHook = (req, res, stream, eventType) => {
+  if (req.method === 'POST') {
+    network.getPost(req).then(data => publishEvent(stream, eventType, data))
+      .then(() => {
+        res.statusCode = 200;
+        // Cloudpayments expects this code
+        res.end('{"code":0}');
+      }).catch(error => {
+        res.statusCode = 500;
+        res.end(error.message);
+      });
+  } else {
+    res.end('Expecting a POST request');
+  }
+};
 
 
 //
 // Projections
 //
-const getAmountDonate = () => getContent('http://' + eventStoreHostname + ':2113/projection/amountDonated/result');
+const getAmountDonate = () => network.getContent('http://' + eventStoreHostname + ':2113/projection/amountDonated/result');
 
 
 //
@@ -52,7 +74,7 @@ const routes = {
   '/': (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
-    res.end('Index. Check out <a href="/getAmountDonate">/getAmountDonate</a> and <a href="/registerPayment">/registerPayment</a> routes.');
+    res.end('Nothing to see here. Walk along.');
   },
   
   '/getAmountDonate': (req, res) => getAmountDonate().then(result => {
@@ -60,25 +82,16 @@ const routes = {
     res.end(result);
   }).catch(error => {
     res.statusCode = 500;
-    res.end(JSON.stringify({error: error.message || error}));
+    res.end(JSON.stringify({error: error.message}));
   }),
 
-  '/registerPayment': (req, res) => {
-    if (req.method === 'POST') {
-      const chunks = [];
-      req.on('data', chunk => chunks.push(chunk));
-      req.on('end', () => {
-        const body = Buffer.concat(chunks);
-        const data = qs.parse(body.toString());
-        registerPayment(data);
-        res.statusCode = 200;
-        res.end('{"code":0}');
-      });
-      // TODO: error handling
-    } else {
-      res.end('Expecting a POST request');
-    }
-  }
+  // These routes are called by Cloudpayments webhooks
+
+  '/pay': (req, res) => handleHook(req, res, 'payments', 'PaymentSucceeded'),
+
+  '/refund': (req, res) => handleHook(req, res, 'payments', 'RefundSucceeded'),
+
+  '/recurrent': (req, res) => handleHook(req, res, 'subscriptions', 'SubscriptionChanged')
 };
 
 
