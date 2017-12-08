@@ -22,15 +22,13 @@ exports.getContent = function (url) {
     });
 };
 
-const qs = require('querystring');
 exports.getPost = function (req) {
     return new Promise((resolve, reject) => {
         const chunks = [];
         req.on('data', (chunk) => chunks.push(chunk));
         req.on('end', () => {
             const body = Buffer.concat(chunks);
-            const data = qs.parse(body.toString());
-            resolve(data);
+            resolve(body.toString());
         });
         req.on('error', (err) => reject(err));
     });

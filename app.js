@@ -1,5 +1,7 @@
 const http = require('http');
 const Guid = require('guid');
+const crypto = require('crypto');
+const qs = require('querystring');
 const network = require("./util/network.js");
 
 
@@ -9,6 +11,18 @@ const network = require("./util/network.js");
 const hostname = '0.0.0.0';
 const port = process.env.PORT || 3000;
 const eventStoreHostname = process.env.ES_HOST || '127.0.0.1';
+const hmacKey = process.env.HMAC_KEY;
+
+function createHmacValidator() {
+  var hmac = crypto.createHmac('sha256', hmacKey);
+  return (body, requestHmac) => {
+    hmac.update(body);
+    const calculatedHmac = hmac.digest('base64');
+    return requestHmac === calculatedHmac;
+  };
+}
+
+const validateHmac = createHmacValidator();
 
 
 const publishEvent = (stream, eventType, data) => {
@@ -46,7 +60,14 @@ const publishEvent = (stream, eventType, data) => {
 
 const handleHook = (req, res, stream, eventType) => {
   if (req.method === 'POST') {
-    network.getPost(req).then(data => publishEvent(stream, eventType, data))
+    network.getPost(req).then(data => {
+      if (validateHmac(data, req.headers['content-hmac'])) {
+        return publishEvent(stream, eventType, qs.parse(data));
+      } else {
+        console.log('HMAC failed for request:', req);
+        throw new Error('HMAC not valid');
+      }
+    })
       .then(() => {
         res.statusCode = 200;
         // Cloudpayments expects this code
