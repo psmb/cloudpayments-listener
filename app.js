@@ -121,6 +121,10 @@ const routes = {
 //
 const server = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+ 
   if (routes.hasOwnProperty(req.url)) {
     routes[req.url](req, res);
   } else {
