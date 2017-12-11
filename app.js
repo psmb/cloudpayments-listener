@@ -13,21 +13,16 @@ const port = process.env.PORT || 3000;
 const eventStoreHostname = process.env.ES_HOST || '127.0.0.1';
 const hmacKey = process.env.HMAC_KEY;
 
-function createHmacValidator() {
+function validateHmac(body, requestHmac) {
   var hmac = crypto.createHmac('sha256', hmacKey);
-  return (body, requestHmac) => {
-    hmac.update(body);
-    const calculatedHmac = hmac.digest('base64');
-    return requestHmac === calculatedHmac;
-  };
+  hmac.update(body);
+  const calculatedHmac = hmac.digest('base64');
+  return requestHmac === calculatedHmac;
 }
-
-const validateHmac = createHmacValidator();
 
 
 const publishEvent = (stream, eventType, data) => {
   return new Promise((resolve, reject) => {
-    // TODO: HMAC validation
     const guid = Guid.create();
     const events = [
       {
