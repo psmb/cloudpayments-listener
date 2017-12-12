@@ -82,6 +82,8 @@ const handleHook = (req, res, stream, eventType) => {
 //
 const getAmountDonate = () => network.getContent('http://' + eventStoreHostname + ':2113/projection/amountDonated/result');
 
+const getEmails = () => network.getContent('http://' + eventStoreHostname + ':2113/projection/emails/result');
+
 
 //
 // Routes
@@ -94,6 +96,14 @@ const routes = {
   },
   
   '/getAmountDonate': (req, res) => getAmountDonate().then(result => {
+    res.statusCode = 200;
+    res.end(result);
+  }).catch(error => {
+    res.statusCode = 500;
+    res.end(JSON.stringify({error: error.message}));
+  }),
+
+  '/getEmails': (req, res) => getEmails().then(result => {
     res.statusCode = 200;
     res.end(result);
   }).catch(error => {
