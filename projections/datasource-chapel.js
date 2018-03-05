@@ -30,7 +30,7 @@ const getFresh = (s, e) => {
     return date - daysago > 0;
 };
 
-fromAll()
+fromStream('data')
 .when({
     $init: function() {
         return {
