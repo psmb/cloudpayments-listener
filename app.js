@@ -113,11 +113,11 @@ const routes = {
 
   // These routes are called by Cloudpayments webhooks
 
-  '/pay': (req, res) => handleHook(req, res, 'payments', 'PaymentSucceeded'),
+  '/pay': (req, res) => handleHook(req, res, 'data', 'PaymentSucceeded'),
 
-  '/refund': (req, res) => handleHook(req, res, 'payments', 'RefundSucceeded'),
+  '/refund': (req, res) => handleHook(req, res, 'data', 'RefundSucceeded'),
 
-  '/recurrent': (req, res) => handleHook(req, res, 'subscriptions', 'SubscriptionChanged')
+  '/recurrent': (req, res) => handleHook(req, res, 'data', 'SubscriptionChanged')
 };
 
 
