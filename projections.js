@@ -42,7 +42,7 @@ connection.once("connected", tcpEndPoint => {
         false,
         (stream, event) => projectionManager.onEvent({
             eventId: event.originalEvent.eventId,
-            eventType: eventType,
+            eventType: event.originalEvent.eventType,
             data: JSON.parse(event.originalEvent.data.toString())
         }),
         liveProcessingStarted,
