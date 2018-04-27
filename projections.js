@@ -1,12 +1,4 @@
 import client from 'node-eventstore-client';
-import uuid from 'uuid';
-import http from 'http';
-import fs from 'fs';
-import path from 'path';
-import Guid from 'guid';
-import crypto from 'crypto';
-import qs from 'querystring';
-import network from "./util/network.js";
 import config from './config';
 import ProjectionManager from './lib/projectionManager';
 
@@ -35,7 +27,7 @@ const liveProcessingStarted = () => {
 const subscriptionDropped = (subscription, reason, error) =>
     console.log(error ? error : "Subscription dropped.");
 
-const credentials = new client.UserCredentials("admin", "changeit");
+const credentials = new client.UserCredentials("admin", config.eventStorePass);
 
 const settings = {};
 const endpoint = "tcp://eventstore:1113";
