@@ -1,8 +1,7 @@
 import http from 'http';
 import path from 'path';
 import Guid from 'guid';
-
-const eventStoreHostname = process.env.ES_HOST || '127.0.0.1';
+import config from './../config';
 
 export const publishEvent = (stream, eventType, data) => {
   return new Promise((resolve, reject) => {
@@ -16,7 +15,7 @@ export const publishEvent = (stream, eventType, data) => {
     ];
     
     const request = http.request({
-      host: eventStoreHostname,
+      host: config.eventStoreHostname,
       port: '2113',
       path: '/streams/' + stream,
       method: 'POST',

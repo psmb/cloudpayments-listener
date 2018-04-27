@@ -43,9 +43,9 @@ const handleHook = (req, res, stream, eventType) => {
 //
 // Projections
 //
-const getAmountDonate = () => getContent('http://' + eventStoreHostname + ':2113/projection/amountDonated/result');
+const getAmountDonate = () => getContent('http://' + config.eventStoreHostname + ':2113/projection/amountDonated/result');
 
-const getEmails = () => getContent('http://' + eventStoreHostname + ':2113/projection/emails/result');
+const getEmails = () => getContent('http://' + config.eventStoreHostname + ':2113/projection/emails/result');
 
 
 //
