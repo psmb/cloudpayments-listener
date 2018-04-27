@@ -4,7 +4,7 @@ import path from 'path';
 import Guid from 'guid';
 import crypto from 'crypto';
 import qs from 'querystring';
-import network from "./util/network";
+import {getPost, getContent} from "./util/network";
 import {publishEvent} from './util/publishEvent';
 import config from './config';
 import projectionManager from './projections';
@@ -18,7 +18,7 @@ function validateHmac(body, requestHmac) {
 
 const handleHook = (req, res, stream, eventType) => {
   if (req.method === 'POST') {
-    network.getPost(req).then(data => {
+    getPost(req).then(data => {
       if (validateHmac(data, req.headers['content-hmac'])) {
         return publishEvent(stream, eventType, qs.parse(data));
       } else {
@@ -43,9 +43,9 @@ const handleHook = (req, res, stream, eventType) => {
 //
 // Projections
 //
-const getAmountDonate = () => network.getContent('http://' + eventStoreHostname + ':2113/projection/amountDonated/result');
+const getAmountDonate = () => getContent('http://' + eventStoreHostname + ':2113/projection/amountDonated/result');
 
-const getEmails = () => network.getContent('http://' + eventStoreHostname + ':2113/projection/emails/result');
+const getEmails = () => getContent('http://' + eventStoreHostname + ':2113/projection/emails/result');
 
 
 //

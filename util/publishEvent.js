@@ -4,7 +4,7 @@ import Guid from 'guid';
 
 const eventStoreHostname = process.env.ES_HOST || '127.0.0.1';
 
-const publishEvent = (stream, eventType, data) => {
+export const publishEvent = (stream, eventType, data) => {
   return new Promise((resolve, reject) => {
     const guid = Guid.create();
     const events = [
@@ -34,5 +34,3 @@ const publishEvent = (stream, eventType, data) => {
     request.end();
   });
 };
-
-export {publishEvent};
