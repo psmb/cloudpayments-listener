@@ -34,4 +34,4 @@ const getPost = function (req) {
     });
 };
 
-export {getContent, getPost};
+export default {getContent, getPost};
