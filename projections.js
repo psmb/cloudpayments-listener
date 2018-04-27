@@ -6,6 +6,7 @@ import amountDonated from './projections/amountDonated';
 import makeInstant from './projections/pendingEmails-makeInstant';
 import once2mLastPayment from './projections/pendingEmails-once-2m-last-payment';
 import once2wNotRecurrent from './projections/pendingEmails-once-2w-not-recurrent';
+import recurrent1D from './projections/pendingEmails-recurrent-1d';
 
 const projectionManager = new ProjectionManager();
 export default projectionManager;
@@ -13,7 +14,7 @@ export default projectionManager;
 projectionManager.registerProjection('amountDonated', amountDonated);
 projectionManager.registerProjection('once-instant', makeInstant('once-instant', false));
 projectionManager.registerProjection('recurrent-instant', makeInstant('recurrent-instant', true));
-projectionManager.registerProjection('recurrent-1d', makeInstant('recurrent-1d', true));
+projectionManager.registerProjection('recurrent-1d', recurrent1D);
 projectionManager.registerProjection('once-2m-last-payment', once2mLastPayment);
 projectionManager.registerProjection('once-2w-not-recurrent', once2wNotRecurrent);
 
