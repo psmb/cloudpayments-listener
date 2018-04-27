@@ -1,57 +1,20 @@
-const http = require('http');
-const Guid = require('guid');
-const crypto = require('crypto');
-const qs = require('querystring');
-const network = require("./util/network.js");
-
-
-//
-// Config
-//
-const hostname = '0.0.0.0';
-const port = process.env.PORT || 3000;
-const eventStoreHostname = process.env.ES_HOST || '127.0.0.1';
-const hmacKey = process.env.HMAC_KEY;
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import Guid from 'guid';
+import crypto from 'crypto';
+import qs from 'querystring';
+import network from "./util/network";
+import {publishEvent} from './util/publishEvent';
+import config from './config';
+import projectionManager from './projections';
 
 function validateHmac(body, requestHmac) {
-  var hmac = crypto.createHmac('sha256', hmacKey);
+  var hmac = crypto.createHmac('sha256', config.hmacKey);
   hmac.update(body);
   const calculatedHmac = hmac.digest('base64');
   return requestHmac === calculatedHmac;
 }
-
-
-const publishEvent = (stream, eventType, data) => {
-  return new Promise((resolve, reject) => {
-    const guid = Guid.create();
-    const events = [
-      {
-        eventId: guid,
-        eventType: eventType,
-        data: data
-      }
-    ];
-    
-    const request = http.request({
-      host: eventStoreHostname,
-      port: '2113',
-      path: '/streams/' + stream,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/vnd.eventstore.events+json'
-      }
-    }, response => {
-      if (response.statusCode < 200 || response.statusCode > 299) {
-        reject(new Error('Failed to publish and event, status code: ' + response.statusCode));
-      } else {
-        resolve(true);
-      }
-    });
-    request.write(JSON.stringify(events));
-    request.end();
-  });
-};
-
 
 const handleHook = (req, res, stream, eventType) => {
   if (req.method === 'POST') {
@@ -132,11 +95,14 @@ const server = http.createServer((req, res) => {
  
   if (routes.hasOwnProperty(req.url)) {
     routes[req.url](req, res);
+  } else if (req.url.indexOf("/projection/") === 0) {
+    res.statusCode = 200;
+    res.end(JSON.stringify(projectionManager.getResult(req.url.substring(12)), null, 2));
   } else {
     res.end('No route found: ' + req.url);
   }
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+server.listen(config.port, config.hostname, () => {
+  console.log(`Server running at http://${config.hostname}:${config.port}/`);
 });

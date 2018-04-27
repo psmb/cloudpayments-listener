@@ -74,6 +74,6 @@ fromStream('data')
         }
     },
     SubscriberUnsubscribed: function (s, e) {
-        s.unsubscribed.push(e.body.hash);
+        s.unsubscribed.push(e.body.email);
     }
 }).transformBy(s => Object.keys(s.result).map(email => s.unsubscribed.includes(email) ? null : s.result[email]).filter(i => i));

@@ -1,6 +1,6 @@
 // No, I don't need an npm module for this...
 // Source: https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/
-exports.getContent = function (url) {
+const getContent = function (url) {
     // return new pending promise
     return new Promise((resolve, reject) => {
         // select http or https module, depending on reqested url
@@ -22,7 +22,7 @@ exports.getContent = function (url) {
     });
 };
 
-exports.getPost = function (req) {
+const getPost = function (req) {
     return new Promise((resolve, reject) => {
         const chunks = [];
         req.on('data', (chunk) => chunks.push(chunk));
@@ -33,3 +33,5 @@ exports.getPost = function (req) {
         req.on('error', (err) => reject(err));
     });
 };
+
+export {getContent, getPost};
