@@ -29,7 +29,7 @@ export default {
         }
     },
     SubscriptionChanged: (s, e) => {
-        if (e.data.Status !== "Active" && e.data.Status !== "PastDue" && ISRECURRENT) {
+        if (e.data.Status !== "Active" && e.data.Status !== "PastDue") {
             delete s.result[e.data.SubscriptionId];
         }
     },
