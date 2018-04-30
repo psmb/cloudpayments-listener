@@ -1,6 +1,6 @@
 export default {
     $init: () => ({
-        amount: 1520500 + 450000 + 66850,
+        amount: 0,
         byReferer: {
             "chapel": 0
         }
