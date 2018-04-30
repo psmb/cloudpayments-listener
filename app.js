@@ -84,7 +84,7 @@ const getAmountDonate = () => getManualData().then(result => {
     };
     Object.keys(result).forEach(key => {
       if (key === 'total') {
-        mergedData.amount = result.total;
+        mergedData.amount += result.total;
       } else {
         mergedData.byReferer[key] += result[key];
       }
