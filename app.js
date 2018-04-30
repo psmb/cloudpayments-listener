@@ -125,7 +125,11 @@ const routes = {
 
   '/refund': (req, res) => handleHook(req, res, 'data', 'RefundSucceeded'),
 
-  '/recurrent': (req, res) => handleHook(req, res, 'data', 'SubscriptionChanged')
+  '/recurrent': (req, res) => handleHook(req, res, 'data', 'SubscriptionChanged'),
+
+  '/fail': (req, res) => handleHook(req, res, 'data', 'PaymentFailed'),
+
+  '/cancel': (req, res) => handleHook(req, res, 'data', 'PaymentCanceled')
 };
 
 
