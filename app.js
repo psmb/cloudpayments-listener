@@ -80,6 +80,7 @@ const getManualData = makeCache(() => {
 const getAmountDonate = () => getManualData().then(result => {
     const projectionData = projectionManager.getResult('amountDonated');
     let mergedData = {
+      amount: projectionData.amount,
       byReferer: Object.assign({}, projectionData.byReferer)
     };
     Object.keys(result).forEach(key => {
