@@ -1,0 +1,33 @@
+export default {
+    eventId: 'fail1',
+    eventType: 'PaymentFailed',
+    data: {
+        "TransactionId": "fail1",
+        "Amount": "100.00",
+        "Currency": "RUB",
+        "PaymentAmount": "100.00",
+        "PaymentCurrency": "RUB",
+        "OperationType": "Payment",
+        "InvoiceId": "",
+        "AccountId": "test@user.com",
+        "SubscriptionId": "",
+        "Name": "DMITRI PISAREV",
+        "Email": "test@user.com",
+        "DateTime": "2018-04-30 12:31:15",
+        "IpCountry": "DE",
+        "IpCity": "",
+        "IpRegion": "",
+        "IpDistrict": "",
+        "IpLatitude": "0",
+        "IpLongitude": "0",
+        "Issuer": "SBERBANK OF RUSSIA",
+        "IssuerBankCountry": "RU",
+        "Description": "Пожертвование на Свято-Филаретовский православно-христианский институт (регулярное)",
+        "TestMode": "0",
+        "Status": "Declined",
+        "StatusCode": "5",
+        "Reason": "DoNotHonor",
+        "ReasonCode": "5005",
+        "Data": "{\"firstName\":\"Dmitri\",\"lastName\":\"Pisarev\",\"referer\":\"c.sfi.ru\",\"cloudPayments\":{\"recurrent\":{\"interval\":\"Month\",\"period\":1}}}"
+    }
+};
