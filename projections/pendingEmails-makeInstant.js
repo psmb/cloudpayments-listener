@@ -1,13 +1,13 @@
 import getData from './_getData';
 
-export default (TYPE, ISRECURRENT) => ({
+export default (TYPE, ISRECURRENT, OCCURANCE = null) => ({
     $init: () => ({
         "result": {},
         "unsubscribed": {},
         "subscriptions": {},
     }),
     PaymentSucceeded: (s, e) => {
-        if (e.data.TestMode === "0" && e.data.Email) {
+        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
             const data = getData(s, e);
             const {name, firstName, lastName, referer, date} = data;
             const email = e.data.Email.toLowerCase();
@@ -16,8 +16,12 @@ export default (TYPE, ISRECURRENT) => ({
 
             const reason = e.data.TransactionId;
             const transaction = {reason, email, name, firstName, lastName, date, referer, amount, subscriptionId};
+            
 
-            if ((ISRECURRENT && subscriptionId) || (!ISRECURRENT && !e.data.SubscriptionId)) {
+            if ((ISRECURRENT && subscriptionId) || (!ISRECURRENT && !subscriptionId)) {
+                if ((OCCURANCE === 'onlyFirst' && !e.data.Data) || (OCCURANCE === 'onlyNext' && e.data.Data)) {
+                    return;
+                }
                 s.result[e.data.TransactionId] = transaction;
             }
         }

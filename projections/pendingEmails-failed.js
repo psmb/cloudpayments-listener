@@ -5,10 +5,11 @@ import getData from './_getData';
 
 export default {
     $init: () => ({
-        result: {}
+        result: {},
+        subscriptions: {}
     }),
     PaymentFailed: (s, e) => {
-        if (e.data.TestMode === "0" && e.data.Email) {
+        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
             const data = getData(s, e);
             const {name, firstName, lastName, referer, date} = data;
             const email = e.data.Email.toLowerCase();
@@ -28,8 +29,11 @@ export default {
         }
     },
     PaymentSucceeded: (s, e) => {
-        const email = e.data.Email.toLowerCase();
-        delete s.result[email];
+        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
+            const data = getData(s, e);
+            const email = e.data.Email.toLowerCase();
+            delete s.result[email];
+        }
     },
     $transform: s => Object.keys(s.result).map(i => s.result[i])
 };

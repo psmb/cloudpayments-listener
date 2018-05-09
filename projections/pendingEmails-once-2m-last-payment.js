@@ -11,7 +11,7 @@ export default {
         "subscriptions": {},
     }),
     PaymentSucceeded: (s, e) => {
-        if (e.data.TestMode === "0" && e.data.Email) {
+        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
             const data = getData(s, e);
             const {name, firstName, lastName, referer, date} = data;
             const email = e.data.Email.toLowerCase();

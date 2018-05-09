@@ -3,6 +3,7 @@ import getData from './_getData';
 
 // Тем, чья ежемесячная подписка прекратилась из-за отсутствия средств на карте
 // однократно в случае отсутствия каких-либо платежей.
+// При этом должен был быть хоть один успешный платеж
 
 export default {
     $init: () => ({
@@ -10,7 +11,7 @@ export default {
         subscriptions: {}
     }),
     SubscriptionChanged: (s, e) => {
-        if (e.data.Status === 'Rejected') {
+        if (e.data.Status === 'Rejected' && parseInt(e.data.SuccessfulTransactionsNumber) > 0) {
             const subscriptionData = s.subscriptions[e.data.Id];
             const data = getData({subscriptions: {}}, {data: subscriptionData});
             const {name, firstName, lastName, referer, date} = data;
@@ -22,6 +23,11 @@ export default {
             s.result[e.data.Email] = transaction;
         }
     },
+    PaymentFailed: (s, e) => {
+        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
+            const data = getData(s, e);
+        }
+    },
     EmailSent: (s, e) => {
         if (e.data.reason && e.data.type && e.data.type === TYPE) {
             s.result[e.data.reason] = true;
@@ -29,7 +35,7 @@ export default {
         }
     },
     PaymentSucceeded: (s, e) => {
-        if (e.data.TestMode === "0" && e.data.Email) {
+        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
             const data = getData(s, e);
             delete s.result[e.data.Email];
         }

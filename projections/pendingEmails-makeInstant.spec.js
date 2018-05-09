@@ -67,3 +67,19 @@ test('pendingEmails-recurrent-instant', async projectionManager => {
     });
     assert.equal(projectionManager.getResult('recurrent-instant').length, 0, 'After SubscriberUnsubscribed he should not get any email');
 });
+
+test('pendingEmails-recurrent-instant-initial', async projectionManager => {
+    projectionManager.registerProjection('recurrent-instant', makeInstant('recurrent-instant', true, 'onlyFirst'));
+    projectionManager.onEvent(recurrentNext);
+    assert.equal(projectionManager.getResult('recurrent-instant').length, 0, 'Next shouldn\'t alter the result');
+    projectionManager.onEvent(recurrentInitial);
+    assert.equal(projectionManager.getResult('recurrent-instant').length, 1, 'Initial should');
+});
+
+test('pendingEmails-recurrent-instant-next', async projectionManager => {
+    projectionManager.registerProjection('recurrent-instant', makeInstant('recurrent-instant', true, 'onlyNext'));
+    projectionManager.onEvent(recurrentNext);
+    assert.equal(projectionManager.getResult('recurrent-instant').length, 1, 'Next should alter the result');
+    projectionManager.onEvent(recurrentInitial);
+    assert.equal(projectionManager.getResult('recurrent-instant').length, 1, 'Initial shouldn\'t alter');
+});
