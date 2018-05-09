@@ -45,7 +45,7 @@ export default {
             const isAmongRecurrent = Object.keys(s.subscriptions)
                 .some(subscriptionId => s.subscriptions[subscriptionId].Email === transaction.email);
             // Not among recurrent
-            if (!isAmongRecurrent) {
+            if (isAmongRecurrent) {
                 return null;
             }
             // Not among unsubscribed
