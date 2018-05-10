@@ -8,10 +8,11 @@ import getData from './_getData';
 export default {
     $init: () => ({
         result: {},
-        subscriptions: {}
+        subscriptions: {},
+        unsubscribed: {}
     }),
     SubscriptionChanged: (s, e) => {
-        if (e.data.Status === 'Rejected' && parseInt(e.data.SuccessfulTransactionsNumber) > 0) {
+        if (e.data.Status === 'Rejected') {
             const subscriptionData = s.subscriptions[e.data.Id];
             const data = getData({subscriptions: {}}, {data: subscriptionData});
             const {name, firstName, lastName, referer, date} = data;
@@ -34,11 +35,23 @@ export default {
             delete s.result[e.data.reason];
         }
     },
+    
     PaymentSucceeded: (s, e) => {
-        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
+        if (parseInt(e.data.TestMode) === 0) {
             const data = getData(s, e);
-            delete s.result[e.data.Email];
+            if (e.data.Email) {
+                delete s.result[e.data.Email];
+            }
         }
     },
-    $transform: s => Object.keys(s.result).map(i => s.result[i])
+    $transform: s => Object.keys(s.result)
+        .map(transactionId => {
+            const transaction = s.result[transactionId];
+            // Not among unsubscribed
+            if (s.unsubscribed[transaction.email]) {
+                return null;
+            }
+            return transaction;
+        })
+        .filter(i => i)
 };

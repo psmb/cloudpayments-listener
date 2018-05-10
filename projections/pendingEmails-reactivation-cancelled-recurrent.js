@@ -4,15 +4,15 @@ import getData from './_getData';
 // Тем, кто добровольно отменил ежемесячную подписку.
 // Однократно, через месяц после отмены, если их нет в базе действующих реккурентов
 // по другим проектам или нет среди разовых жертвователей после отмены подписки.
-// При этом в подписке должно быть минимум 2 удачных платежа.
 
 export default {
     $init: () => ({
         result: {},
-        subscriptions: {}
+        subscriptions: {},
+        unsubscribed: {}
     }),
     SubscriptionChanged: (s, e) => {
-        if (e.data.Status === 'Cancelled' && parseInt(e.data.SuccessfulTransactionsNumber) > 0) {
+        if (e.data.Status === 'Cancelled') {
             const subscriptionData = s.subscriptions[e.data.Id];
             const data = getData({subscriptions: {}}, {data: subscriptionData});
             const {name, firstName, lastName, referer, date} = data;
@@ -34,10 +34,15 @@ export default {
         }
     },
     PaymentSucceeded: (s, e) => {
-        if (parseInt(e.data.TestMode) === 0 && e.data.Email) {
+        if (parseInt(e.data.TestMode) === 0) {
             const data = getData(s, e);
-            delete s.result[e.data.Email];
+            if (e.data.Email) {
+                delete s.result[e.data.Email];
+            }
         }
+    },
+    SubscriberUnsubscribed: (s, e) => {
+        s.unsubscribed[e.data.email] = true;
     },
     $transform: s => Object.keys(s.result)
         .map(transactionId => {
