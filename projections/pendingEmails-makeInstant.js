@@ -28,7 +28,7 @@ export default (TYPE, ISRECURRENT, OCCURANCE = null) => ({
     },
     SubscriptionChanged: (s, e) => {
         if (e.data.Status !== "Active" && e.data.Status !== "PastDue" && ISRECURRENT) {
-            delete s.result[e.data.SubscriptionId];
+            delete s.result[e.data.Id];
         }
     },
     EmailSent: (s, e) => {

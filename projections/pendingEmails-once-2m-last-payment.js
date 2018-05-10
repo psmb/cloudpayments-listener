@@ -30,7 +30,7 @@ export default {
     },
     SubscriptionChanged: (s, e) => {
         if (e.data.Status !== "Active" && e.data.Status !== "PastDue") {
-            delete s.subscriptions[e.data.SubscriptionId];
+            delete s.subscriptions[e.data.Id];
         }
     },
     EmailSent: (s, e) => {

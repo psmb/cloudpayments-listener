@@ -24,7 +24,7 @@ export default {
             s.result[e.data.Email] = transaction;
         }
         if (e.data.Status !== "Active" && e.data.Status !== "PastDue") {
-            delete s.subscriptions[e.data.Email];
+            delete s.subscriptions[e.data.Id];
         }
     },
     EmailSent: (s, e) => {
