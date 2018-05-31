@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import qs from 'querystring';
 import {getPost, getContent} from "./util/network";
 import {publishEvent} from './util/publishEvent';
+import auth from './util/auth';
 import config from './config';
 import projectionManager from './projections';
 
@@ -44,6 +45,8 @@ const handleHook = (req, res, stream, eventType) => {
 //
 // Projections
 //
+const getESProjection = projectionName => getContent('http://' + config.eventStoreHostname + ':2113/projection/' + projectionName + '/result');
+
 const getEmails = () => getContent('http://' + config.eventStoreHostname + ':2113/projection/emails/result');
 
 const makeCache = (func, timeout) => {
@@ -96,28 +99,17 @@ const getAmountDonate = () => getManualData().then(result => {
 //
 // Routes
 //
-const routes = {
+const openRoutes = {
   '/': (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
     res.end('Nothing to see here. Walk along.');
   },
-  
-  '/getAmountDonate': (req, res) => getAmountDonate().then(result => {
-    res.end(JSON.stringify(result));
-    res.statusCode = 200;
-  }).catch(error => {
-    res.statusCode = 500;
-    res.end(JSON.stringify({ error: error.message }));
-  }),
 
-  '/getEmails': (req, res) => getEmails().then(result => {
+  '/projection/amountDonated': (req, res) => {
     res.statusCode = 200;
-    res.end(result);
-  }).catch(error => {
-    res.statusCode = 500;
-    res.end(JSON.stringify({error: error.message}));
-  }),
+    res.end(JSON.stringify(projectionManager.getResult('amountDonated'), null, 2));
+  },
 
   // These routes are called by Cloudpayments webhooks
 
@@ -141,14 +133,26 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
- 
+
   if (routes.hasOwnProperty(req.url)) {
     routes[req.url](req, res);
-  } else if (req.url.indexOf("/projection/") === 0) {
-    res.statusCode = 200;
-    res.end(JSON.stringify(projectionManager.getResult(req.url.substring(12)), null, 2));
   } else {
-    res.end('No route found: ' + req.url);
+    auth(req, res, (req, res) => {
+      if (req.url.indexOf("/es-projection/") === 0) {
+        getESProjection(req.url.substring(15)).then(result => {
+          res.statusCode = 200;
+          res.end(result);
+        }).catch(error => {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: error.message }));
+        });
+      } else if (req.url.indexOf("/projection/") === 0) {
+        res.statusCode = 200;
+        res.end(JSON.stringify(projectionManager.getResult(req.url.substring(12)), null, 2));
+      } else {
+        res.end('No route found: ' + req.url);
+      }
+    });
   }
 });
 
