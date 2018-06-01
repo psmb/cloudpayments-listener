@@ -106,10 +106,13 @@ const openRoutes = {
     res.end('Nothing to see here. Walk along.');
   },
 
-  '/projection/amountDonated': (req, res) => {
+  '/getAmountDonate': (req, res) => getAmountDonate().then(result => {
+    res.end(JSON.stringify(result));
     res.statusCode = 200;
-    res.end(JSON.stringify(projectionManager.getResult('amountDonated'), null, 2));
-  },
+  }).catch(error => {
+    res.statusCode = 500;
+    res.end(JSON.stringify({ error: error.message }));
+  }),
 
   // These routes are called by Cloudpayments webhooks
 
