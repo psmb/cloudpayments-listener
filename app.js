@@ -134,8 +134,8 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
-  if (routes.hasOwnProperty(req.url)) {
-    routes[req.url](req, res);
+  if (openRoutes.hasOwnProperty(req.url)) {
+    openRoutes[req.url](req, res);
   } else {
     auth(req, res, (req, res) => {
       if (req.url.indexOf("/es-projection/") === 0) {
