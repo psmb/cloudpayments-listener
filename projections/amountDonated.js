@@ -1,12 +1,12 @@
+
 export default {
     $init: () => ({
         amount: 0,
         byReferer: {
-            "chapel": 0
         }
     }),
     PaymentSucceeded: (s, e) => {
-        if (e.data.Amount > 0) {
+        if (e.data.TestMode == 0) {
             s.amount += Number(e.data.Amount);
             let referer;
             if (e.data.Data) {

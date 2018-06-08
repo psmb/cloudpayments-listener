@@ -46,7 +46,7 @@ connection.connect().catch(err => console.log(err));
 connection.once("connected", tcpEndPoint => {
     const subscription = connection.subscribeToStreamFrom(
         'data',
-        0,
+        null,
         false,
         (stream, event) => projectionManager.onEvent({
             eventId: event.originalEvent.eventId,
