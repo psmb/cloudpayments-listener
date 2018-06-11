@@ -6,10 +6,9 @@ import parse from 'csv-parse';
 import crypto from 'crypto';
 import qs from 'querystring';
 import {getPost, getContent} from "./util/network";
-import {publishEvent} from './util/publishEvent';
 import auth from './util/auth';
 import config from './config';
-import projectionManager from './projections';
+import projectionManager, {publishEvent} from './projections';
 
 function validateHmac(body, requestHmac) {
   var hmac = crypto.createHmac('sha256', config.hmacKey);
@@ -22,7 +21,7 @@ const handleHook = (req, res, eventType) => {
   if (req.method === 'POST') {
     getPost(req).then(data => {
       if (validateHmac(data, req.headers['content-hmac'])) {
-        return publishEvent(config.stream, eventType, qs.parse(data));
+        return publishEvent(eventType, qs.parse(data));
       } else {
         console.log('HMAC failed for request:', req);
         throw new Error('HMAC not valid');

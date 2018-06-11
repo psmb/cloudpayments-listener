@@ -1,6 +1,7 @@
 import client from 'node-eventstore-client';
 import config from './config';
 import ProjectionManager from './lib/projectionManager';
+import uuid from 'uuid';
 
 import amountDonated from './projections/amountDonated';
 import makeInstant from './projections/pendingEmails-makeInstant';
@@ -67,3 +68,17 @@ connection.on("error", err =>
 connection.on("closed", reason =>
     console.log(`Connection closed, reason: ${reason}`)
 );
+
+export const publishEvent = (eventType, eventData) => {
+    const eventId = uuid.v4();
+    const event = client.createJsonEventData(eventId, eventData, null, eventType);
+    connection.appendToStream(config.stream, client.expectedVersion.any, event)
+        .then(function (result) {
+            console.log("Stored event:", eventId);
+            connection.close();
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
+
+}
