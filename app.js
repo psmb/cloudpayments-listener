@@ -17,10 +17,10 @@ function validateHmac(body, requestHmac) {
   return requestHmac === calculatedHmac;
 }
 
-const handleHook = (req, res, eventType) => {
+const handleHook = (req, res, eventType, skipHmac = false) => {
   if (req.method === 'POST') {
     getPost(req).then(data => {
-      if (validateHmac(data, req.headers['content-hmac'])) {
+      if (skipHmac || validateHmac(data, req.headers['content-hmac'])) {
         return publishEvent(eventType, qs.parse(data));
       } else {
         console.log('HMAC failed for request:', req);
@@ -140,7 +140,9 @@ const server = http.createServer((req, res) => {
     openRoutes[req.url](req, res);
   } else {
     auth(req, res, (req, res) => {
-      if (req.url.indexOf("/es-projection/") === 0) {
+      if (req.url.indexOf("/publish-event/") === 0) {
+        handleHook(req, res, req.url.substring(15), true);
+      } else if (req.url.indexOf("/es-projection/") === 0) {
         getESProjection(req.url.substring(15)).then(result => {
           res.statusCode = 200;
           res.end(result);
