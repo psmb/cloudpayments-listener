@@ -18,11 +18,11 @@ function validateHmac(body, requestHmac) {
   return requestHmac === calculatedHmac;
 }
 
-const handleHook = (req, res, stream, eventType) => {
+const handleHook = (req, res, eventType) => {
   if (req.method === 'POST') {
     getPost(req).then(data => {
       if (validateHmac(data, req.headers['content-hmac'])) {
-        return publishEvent(stream, eventType, qs.parse(data));
+        return publishEvent(config.stream, eventType, qs.parse(data));
       } else {
         console.log('HMAC failed for request:', req);
         throw new Error('HMAC not valid');
@@ -116,15 +116,15 @@ const openRoutes = {
 
   // These routes are called by Cloudpayments webhooks
 
-  '/pay': (req, res) => handleHook(req, res, 'data', 'PaymentSucceeded'),
+  '/pay': (req, res) => handleHook(req, res, 'PaymentSucceeded'),
 
-  '/refund': (req, res) => handleHook(req, res, 'data', 'RefundSucceeded'),
+  '/refund': (req, res) => handleHook(req, res, 'RefundSucceeded'),
 
-  '/recurrent': (req, res) => handleHook(req, res, 'data', 'SubscriptionChanged'),
+  '/recurrent': (req, res) => handleHook(req, res, 'SubscriptionChanged'),
 
-  '/fail': (req, res) => handleHook(req, res, 'data', 'PaymentFailed'),
+  '/fail': (req, res) => handleHook(req, res, 'PaymentFailed'),
 
-  '/cancel': (req, res) => handleHook(req, res, 'data', 'PaymentCanceled')
+  '/cancel': (req, res) => handleHook(req, res, 'PaymentCanceled')
 };
 
 
