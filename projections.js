@@ -75,9 +75,6 @@ export const publishEvent = (eventType, eventData) => {
     connection.appendToStream(config.stream, client.expectedVersion.any, event)
         .then(function (result) {
             console.log("Stored event:", eventId);
-        })
-        .catch(function (err) {
-            console.error(err);
         });
 
 }
