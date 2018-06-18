@@ -48,8 +48,6 @@ const handleHook = (req, res, eventType, skipHmac = false, json = false) => {
 //
 const getESProjection = projectionName => getContent('http://' + config.eventStoreHostname + ':2113/projection/' + projectionName + '/result');
 
-const getEmails = () => getContent('http://' + config.eventStoreHostname + ':2113/projection/emails/result');
-
 const makeCache = (func, timeout) => {
   let cache = null;
   let timestamp = null;
