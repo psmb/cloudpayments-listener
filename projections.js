@@ -61,18 +61,18 @@ connection.once("connected", tcpEndPoint => {
     console.log(`Connected to eventstore at ${tcpEndPoint.host}:${tcpEndPoint.port}`);
 })
 
-connection.on("error", err =>
-    console.log(`Error occurred on connection: ${err}`)
-);
+connection.on("error", err => {
+    throw new Error(`Error occurred on connection: ${err}`);
+});
 
-connection.on("closed", reason =>
-    console.log(`Connection closed, reason: ${reason}`)
-);
+connection.on("closed", reason => {
+    throw new Error(`Connection closed, reason: ${reason}`);
+});
 
 export const publishEvent = (eventType, eventData) => {
     const eventId = uuid.v4();
     const event = client.createJsonEventData(eventId, eventData, null, eventType);
-    connection.appendToStream(config.stream, client.expectedVersion.any, event)
+    return connection.appendToStream(config.stream, client.expectedVersion.any, event)
         .then(function (result) {
             console.log("Stored event:", eventId);
         });
