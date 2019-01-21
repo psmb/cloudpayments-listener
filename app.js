@@ -1,7 +1,5 @@
 import http from 'http';
-import fs from 'fs';
-import path from 'path';
-import Guid from 'guid';
+import url from 'url';
 import parse from 'csv-parse';
 import crypto from 'crypto';
 import qs from 'querystring';
@@ -105,6 +103,30 @@ const openRoutes = {
     res.end('Nothing to see here. Walk along.');
   },
 
+  '/subscribers': (req, res) => getContent('http://' + config.eventStoreHostname + ':2113/projection/all-payments/result')
+  .then(result => JSON.parse(result))
+  .then(result => {
+    const subscribers = {};
+    result.forEach(payment => {
+      const query = url.parse(req.url, true).query;
+      if (query.referer ? payment.referer === query.referer : true) {
+        const email = payment.email;
+        const isFresh = query.startDate ? (Date.parse(payment.date) - Date.parse(query.startDate) > 0) : true;
+        if (isFresh && email) {
+          const currentAmount = (subscribers[email] && subscribers[email].amount) || 0;
+          payment.amount += currentAmount;
+          subscribers[email] = payment;
+        }
+      }
+    });
+    const json = JSON.stringify(Object.values(subscribers), null, 2);
+    res.statusCode = 200;
+    res.end(json);
+  }).catch(error => {
+    res.statusCode = 500;
+    res.end(JSON.stringify({error: error.message}));
+  }),
+
   '/getAmountDonate': (req, res) => getAmountDonate().then(result => {
     res.end(JSON.stringify(result));
     res.statusCode = 200;
@@ -136,8 +158,9 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
-  if (openRoutes.hasOwnProperty(req.url)) {
-    openRoutes[req.url](req, res);
+  const urlWithoutParams = req.url.split('?')[0];
+  if (openRoutes.hasOwnProperty(urlWithoutParams)) {
+    openRoutes[urlWithoutParams](req, res);
   } else {
     auth(req, res, (req, res) => {
       if (req.url.indexOf("/publish-event/") === 0) {
