@@ -28,6 +28,7 @@ export default {
         "StatusCode": "5",
         "Reason": "DoNotHonor",
         "ReasonCode": "5005",
+        "Referer": "c.sfi.ru",
         "Data": "{\"firstName\":\"Dmitri\",\"lastName\":\"Pisarev\",\"referer\":\"c.sfi.ru\",\"cloudPayments\":{\"recurrent\":{\"interval\":\"Month\",\"period\":1}}}"
     }
 };

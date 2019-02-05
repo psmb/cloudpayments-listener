@@ -15,6 +15,7 @@ export default {
         "Status": "Rejected",
         "SuccessfulTransactionsNumber": "1",
         "FailedTransactionsNumber": "0",
+        "Referer": "c.sfi.ru",
         "LastTransactionDate": "2018-04-02 06:10:02"
     }
 };

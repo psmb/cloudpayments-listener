@@ -10,6 +10,7 @@ export default {
         "Email": "test@user.com",
         "DateTime": "2018-04-22 14:20:01",
         "TestMode": "0",
+        "Referer": "c.sfi.ru",
         "Status": "Completed"
     }
 };

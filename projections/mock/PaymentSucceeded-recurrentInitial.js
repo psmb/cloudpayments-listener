@@ -11,6 +11,7 @@ export default {
         "DateTime": "2018-04-22 14:20:01",
         "TestMode": "0",
         "Status": "Completed",
+        "Referer": "c.sfi.ru",
         "Data": "{\"firstName\":\"Dmitri \",\"lastName\":\"Pisarev\",\"referer\":\"c.sfi.ru\",\"cloudPayments\":{\"recurrent\":{\"interval\":\"Month\",\"period\":1}}}"
     }
 };

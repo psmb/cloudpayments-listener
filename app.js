@@ -8,8 +8,15 @@ import auth from './util/auth';
 import config from './config';
 import projectionManager, {publishEvent} from './projections';
 
-function validateHmac(body, requestHmac) {
-  var hmac = crypto.createHmac('sha256', config.hmacKey);
+function validateHmac(body, requestHmac, referer = null) {
+  let hmacKey = config.hmacKey;
+  if (referer) {
+    hmacKey = config.hmacKeys[referer];
+  }
+  if (!hmacKey) {
+    throw new Error('HMAC key not provided, referer: ' + referer);
+  }
+  var hmac = crypto.createHmac('sha256', hmacKey);
   hmac.update(body);
   const calculatedHmac = hmac.digest('base64');
   console.log(calculatedHmac)
@@ -19,8 +26,12 @@ function validateHmac(body, requestHmac) {
 const handleHook = (req, res, eventType, skipHmac = false, json = false) => {
   if (req.method === 'POST') {
     getPost(req).then(data => {
-      if (skipHmac || validateHmac(data, req.headers['content-hmac'])) {
-        const dataArray = json ? JSON.parse(data) : qs.parse(data);
+      const dataArray = json ? JSON.parse(data) : qs.parse(data);
+      const referer = url.parse(req.url, true).query.referer;
+      if (skipHmac || validateHmac(data, req.headers['content-hmac'], referer)) {
+        if (referer) {
+          dataArray.Referer = referer;
+        }
         return publishEvent(eventType, dataArray);
       } else {
         console.log('HMAC failed for request:', data);

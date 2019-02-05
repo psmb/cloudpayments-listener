@@ -14,7 +14,7 @@ export default (s, e) => {
     }
     const rawData = originalData.Data;
     const data = rawData ? JSON.parse(rawData) : {};
-    data.referer = processReferer(data.referer);
+    data.referer = processReferer(e.data.Referer ? e.data.Referer : data.referer);
     data.firstName = data.firstName ? data.firstName.trim() : '';
     data.lastName = data.lastName ? data.lastName.trim() : '';
     data.name = (data.firstName || data.lastName) ? data.firstName + ' ' + data.lastName : data.name;
