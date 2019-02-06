@@ -14,14 +14,18 @@ export default {
     SubscriptionChanged: (s, e) => {
         if (e.data.Status === 'Cancelled') {
             const subscriptionData = s.subscriptions[e.data.Id];
-            const data = getData({subscriptions: {}}, {data: subscriptionData});
-            const {name, firstName, lastName, referer, date} = data;
-            const email = e.data.Email.toLowerCase();
-            const amount = parseInt(e.data.Amount);
-
-            const reason = e.data.Email;
-            const transaction = {reason, email, name, firstName, lastName, date, referer, amount};
-            s.result[e.data.Email] = transaction;
+            if (subscriptionData) {
+                const data = getData({subscriptions: {}}, {data: subscriptionData});
+                const {name, firstName, lastName, referer, date} = data;
+                const email = e.data.Email.toLowerCase();
+                const amount = parseInt(e.data.Amount);
+    
+                const reason = e.data.Email;
+                const transaction = {reason, email, name, firstName, lastName, date, referer, amount};
+                s.result[e.data.Email] = transaction;
+            } else {
+                console.log('Subscription data not found for ', e.data.Id);
+            }
         }
         if (e.data.Status !== "Active" && e.data.Status !== "PastDue") {
             delete s.subscriptions[e.data.Id];
