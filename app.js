@@ -19,7 +19,7 @@ function validateHmac(body, requestHmac, referer = null) {
   var hmac = crypto.createHmac('sha256', hmacKey);
   hmac.update(body);
   const calculatedHmac = hmac.digest('base64');
-  console.log(calculatedHmac)
+  console.log('Request HMAC, calculated HMAC:', requestHmac, calculatedHmac)
   return requestHmac === calculatedHmac;
 }
 
@@ -34,7 +34,7 @@ const handleHook = (req, res, eventType, skipHmac = false, json = false) => {
         }
         return publishEvent(eventType, dataArray);
       } else {
-        console.log('HMAC failed for request:', data);
+        console.log('HMAC failed for request:', req.url, data);
         throw new Error('HMAC not valid');
       }
     })
