@@ -19,7 +19,9 @@ function validateHmac(body, requestHmac, referer = null) {
   var hmac = crypto.createHmac('sha256', hmacKey);
   hmac.update(body);
   const calculatedHmac = hmac.digest('base64');
-  console.log('Request HMAC, calculated HMAC:', requestHmac, calculatedHmac)
+  if (requestHmac !== calculatedHmac) {
+    console.log('HMAC mismatch, requestHmac, calculatedHmac:', requestHmac, calculatedHmac);
+  }
   return requestHmac === calculatedHmac;
 }
 
@@ -32,9 +34,24 @@ const handleHook = (req, res, eventType, skipHmac = false, json = false) => {
         if (referer) {
           dataArray.Referer = referer;
         }
+
+        try {
+          if (dataArray.Data) {
+            const parsedData = JSON.parse(dataArray.Data);
+            if (parsedData.userid && parsedData.contextid && dataArray.Amount) {
+              const url = config.kabinetHostname + '/local/cohortautoenrol/approve.php?contextid=' + parsedData.contextid + '&userid=' + parsedData.userid + '&key=' + config.autoenrolKey + '&amount=' + dataArray.Amount;
+              getContent(url)
+                .then(result => console.info(result))
+                .catch(error => console.error('Problem registring payment in LK:', url, error.message, dataArray.Data))
+            }
+          }
+        } catch (e) {
+          console.error('Problem registring payment in LK:', dataArray.Data);
+        }
+
         return publishEvent(eventType, dataArray);
       } else {
-        console.log('HMAC failed for request:', req.url, data);
+        console.error('HMAC failed for request:', req.url, data);
         throw new Error('HMAC not valid');
       }
     })
@@ -195,5 +212,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(config.port, config.hostname, () => {
-  console.log(`Server running at http://${config.hostname}:${config.port}/`);
+  console.info(`Server running at http://${config.hostname}:${config.port}/`);
 });
