@@ -8,7 +8,6 @@ const kabinetHostname = process.env.KABINET_HOST || 'https://kabinet.sfi.ru';
 // legacy, to be removed
 const hmacKey = process.env.HMAC_KEY;
 const hmacKeys = {
-    chapel: process.env.HMAC_KEY_CHAPEL,
     projects: process.env.HMAC_KEY_PROJECTS,
     social: process.env.HMAC_KEY_SOCIAL
 };
