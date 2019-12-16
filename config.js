@@ -9,7 +9,7 @@ const kabinetHostname = process.env.KABINET_HOST || 'https://kabinet.sfi.ru';
 const hmacKey = process.env.HMAC_KEY;
 const hmacKeys = {
     projects: process.env.HMAC_KEY_PROJECTS,
-    furniture: process.env.HMAC_KEY_FURNITURE,
+    chapel: process.env.HMAC_KEY_CHAPEL,
     social: process.env.HMAC_KEY_SOCIAL
 };
 

@@ -1,5 +1,5 @@
 export default (s, e) => {
-    const processReferer = referer => referer === 'c.sfi.ru' ? 'furniture' : (referer || 'furniture');
+    const processReferer = referer => referer === 'c.sfi.ru' ? 'chapel' : (referer || 'chapel');
     const subscriptionId = e.data.SubscriptionId;
     let originalData;
     if (subscriptionId) {
