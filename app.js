@@ -72,7 +72,11 @@ const handleHook = (req, res, eventType, skipHmac = false, json = false) => {
 //
 // Projections
 //
-const getESProjection = projectionName => getContent('http://' + config.eventStoreHostname + ':2113/projection/' + projectionName + '/result');
+const getESProjection = projectionName => getContent('http://' + config.eventStoreHostname + ':2113/projection/' + projectionName + '/result', {
+  headers: {
+    'Authorization': 'Basic ' + new Buffer(config.apiAuth).toString('base64')
+  }
+});
 
 const makeCache = (func, timeout) => {
   let cache = null;
@@ -131,7 +135,11 @@ const openRoutes = {
     res.end('Nothing to see here. Walk along.');
   },
 
-  '/subscribers': (req, res) => getContent('http://' + config.eventStoreHostname + ':2113/projection/all-payments/result')
+  '/subscribers': (req, res) => getContent('http://' + config.eventStoreHostname + ':2113/projection/all-payments/result', {
+    headers: {
+      'Authorization': 'Basic ' + new Buffer(config.apiAuth).toString('base64')
+    }
+  })
   .then(result => JSON.parse(result))
   .then(result => {
     const subscribers = {};

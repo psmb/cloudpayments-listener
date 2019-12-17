@@ -1,11 +1,11 @@
 // No, I don't need an npm module for this...
 // Source: https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/
-export function getContent(url) {
+export function getContent(url, options = {}) {
     // return new pending promise
     return new Promise((resolve, reject) => {
         // select http or https module, depending on reqested url
         const lib = url.startsWith('https') ? require('https') : require('http');
-        const request = lib.get(url, response => {
+        const request = lib.get(url, options, response => {
             // handle http errors
             if (response.statusCode < 200 || response.statusCode > 299) {
                 reject(new Error('Failed to load page, status code: ' + response.statusCode + '; Url: ' + url));
