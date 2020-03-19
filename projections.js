@@ -38,7 +38,11 @@ const subscriptionDropped = (subscription, reason, error) =>
 
 const credentials = new client.UserCredentials("admin", config.eventStorePass);
 
-const settings = {};
+const settings = {
+    maxRetries: 10000,
+    maxReconnections: 10000,
+    reconnectionDelay: 5000,
+};
 const endpoint = "tcp://eventstore:1113";
 const connection = client.createConnection(settings, endpoint);
 
