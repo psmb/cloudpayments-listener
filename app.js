@@ -1,5 +1,6 @@
 import http from 'http';
 import url from 'url';
+import fetch from 'node-fetch';
 import parse from 'csv-parse';
 import crypto from 'crypto';
 import qs from 'querystring';
@@ -91,7 +92,9 @@ const makeCache = (func, timeout) => {
 };
 
 const getManualData = makeCache(() => {
-  return getContent('https://docs.google.com/spreadsheets/d/e/2PACX-1vQrGXpnzRNZhRH2ssd_Jmre1Bh2fwTBgtrdNo5NSnAWhfIFPbehnCMRMxd1eTW0wh9gJJjeQiH1iXW3/pub?gid=723510395&single=true&output=csv').then(result => {
+  return fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQrGXpnzRNZhRH2ssd_Jmre1Bh2fwTBgtrdNo5NSnAWhfIFPbehnCMRMxd1eTW0wh9gJJjeQiH1iXW3/pub?gid=723510395&single=true&output=csv')
+  .then(res => res.text())
+  .then(result => {
     return new Promise((resolve, reject) => {
       parse(result, {}, (err, output) => {
         if (err) {
