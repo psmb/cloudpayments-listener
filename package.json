@@ -14,7 +14,7 @@
     "csv-parse": "^2.2.0",
     "guid": "^0.0.12",
     "node-eventstore-client": "^0.2.3",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.1"
   },
   "scripts": {
     "start": "yarn && babel-node app.js",
