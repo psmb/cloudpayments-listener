@@ -93,40 +93,40 @@ const makeCache = (func, timeout) => {
 
 const getManualData = makeCache(() => {
   return fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQrGXpnzRNZhRH2ssd_Jmre1Bh2fwTBgtrdNo5NSnAWhfIFPbehnCMRMxd1eTW0wh9gJJjeQiH1iXW3/pub?gid=723510395&single=true&output=csv')
-  .then(res => res.text())
-  .then(result => {
-    return new Promise((resolve, reject) => {
-      parse(result, {}, (err, output) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(output[1].reduce((acc, value, index) => {
-          if (value && value !== 'Сумма') {
-            value = value === 'Итого' ? 'total' : value;
-            acc[value] = parseFloat(output[output.length - 1][index].replace(/\s/g, ''));
+    .then(res => res.text())
+    .then(result => {
+      return new Promise((resolve, reject) => {
+        parse(result, {}, (err, output) => {
+          if (err) {
+            reject(err);
           }
-          return acc;
-        }, {}));
+          resolve(output[1].reduce((acc, value, index) => {
+            if (value && value !== 'Сумма') {
+              value = value === 'Итого' ? 'total' : value;
+              acc[value] = parseFloat(output[output.length - 1][index].replace(/\s/g, ''));
+            }
+            return acc;
+          }, {}));
+        });
       });
     });
-  });
 }, 1000 * 3600 * 24);
 
 const getAmountDonate = () => getManualData().then(result => {
-    const projectionData = projectionManager.getResult('amountDonated');
-    let mergedData = {
-      amount: projectionData.amount,
-      byReferer: Object.assign({}, projectionData.byReferer)
-    };
-    Object.keys(result).forEach(key => {
-      if (key === 'total') {
-        mergedData.amount += result.total;
-      } else {
-        mergedData.byReferer[key] += result[key];
-      }
-    });
-    return mergedData;
+  const projectionData = projectionManager.getResult('amountDonated');
+  let mergedData = {
+    amount: projectionData.amount,
+    byReferer: Object.assign({}, projectionData.byReferer)
+  };
+  Object.keys(result).forEach(key => {
+    if (key === 'total') {
+      mergedData.amount += result.total;
+    } else {
+      mergedData.byReferer[key] += result[key];
+    }
   });
+  return mergedData;
+});
 
 //
 // Routes
@@ -143,36 +143,36 @@ const openRoutes = {
       'Authorization': 'Basic ' + new Buffer(config.apiAuth).toString('base64')
     }
   })
-  .then(result => JSON.parse(result))
-  .then(result => {
-    const subscribers = {};
-    result.forEach(payment => {
-      const query = url.parse(req.url, true).query;
-      if (query.referer ? payment.referer === query.referer : true) {
-        const email = payment.email;
-        const isFreshStart = query.startDate ? (Date.parse(payment.date) - Date.parse(query.startDate) > 0) : true;
-        const isFreshEnd = query.endDate ? (Date.parse(query.endDate) - Date.parse(payment.date) > 0) : true;
-        if (isFreshStart && isFreshEnd && email) {
-          const currentAmount = (subscribers[email] && subscribers[email].amount) || 0;
-          payment.amount += currentAmount;
-          subscribers[email] = payment;
+    .then(result => JSON.parse(result))
+    .then(result => {
+      const subscribers = {};
+      result.forEach(payment => {
+        const query = url.parse(req.url, true).query;
+        if (query.linkReferer ? payment.linkReferer === query.linkReferer : true && query.referer ? payment.referer === query.referer : true) {
+          const email = payment.email;
+          const isFreshStart = query.startDate ? (Date.parse(payment.date) - Date.parse(query.startDate) > 0) : true;
+          const isFreshEnd = query.endDate ? (Date.parse(query.endDate) - Date.parse(payment.date) > 0) : true;
+          if (isFreshStart && isFreshEnd && email) {
+            const currentAmount = (subscribers[email] && subscribers[email].amount) || 0;
+            payment.amount += currentAmount;
+            subscribers[email] = payment;
+          }
         }
-      }
-    });
-    const json = JSON.stringify(Object.values(subscribers), null, 2);
-    res.statusCode = 200;
-    res.end(json);
-  }).catch(error => {
-    res.statusCode = 500;
-    res.end(JSON.stringify({error: error.message}));
-  }),
+      });
+      const json = JSON.stringify(Object.values(subscribers), null, 2);
+      res.statusCode = 200;
+      res.end(json);
+    }).catch(error => {
+      res.statusCode = 500;
+      res.end(JSON.stringify({error: error.message}));
+    }),
 
   '/getAmountDonate': (req, res) => getAmountDonate().then(result => {
     res.end(JSON.stringify(result));
     res.statusCode = 200;
   }).catch(error => {
     res.statusCode = 500;
-    res.end(JSON.stringify({ error: error.message }));
+    res.end(JSON.stringify({error: error.message}));
   }),
 
   // These routes are called by Cloudpayments webhooks
@@ -211,7 +211,7 @@ const server = http.createServer((req, res) => {
           res.end(result);
         }).catch(error => {
           res.statusCode = 500;
-          res.end(JSON.stringify({ error: error.message }));
+          res.end(JSON.stringify({error: error.message}));
         });
       } else if (req.url.indexOf("/projection/") === 0) {
         res.statusCode = 200;
