@@ -148,7 +148,7 @@ const openRoutes = {
       const subscribers = {};
       result.forEach(payment => {
         const query = url.parse(req.url, true).query;
-        if (query.linkReferer ? payment.linkReferer === query.linkReferer : true && query.referer ? payment.referer === query.referer : true) {
+        if (query.linkReferer ? (query.linkReferer === "-" ? !payment.linkReferer : payment.linkReferer === query.linkReferer) : true && query.referer ? payment.referer === query.referer : true) {
           const email = payment.email;
           const isFreshStart = query.startDate ? (Date.parse(payment.date) - Date.parse(query.startDate) > 0) : true;
           const isFreshEnd = query.endDate ? (Date.parse(query.endDate) - Date.parse(payment.date) > 0) : true;
