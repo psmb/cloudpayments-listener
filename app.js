@@ -100,6 +100,9 @@ const getManualData = makeCache(() => {
           if (err) {
             reject(err);
           }
+          if (!output) {
+            reject('Error parsing google spreadsheet');
+          }
           resolve(output[1].reduce((acc, value, index) => {
             if (value && value !== 'Сумма') {
               value = value === 'Итого' ? 'total' : value;
