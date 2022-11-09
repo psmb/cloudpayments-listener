@@ -31,6 +31,7 @@ projectionManager.registerProjection('reactivation-cancelled-recurrent', reactiv
 //
 const liveProcessingStarted = () => {
     console.log("Caught up with previously stored events. Listening for new events.");
+    projectionManager.goLive();
 }
 
 const subscriptionDropped = (subscription, reason, error) =>
