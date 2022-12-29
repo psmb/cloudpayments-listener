@@ -10,20 +10,23 @@ import config from './config';
 import projectionManager, {publishEvent} from './projections';
 
 function validateHmac(body, requestHmac, referer = null) {
-  let hmacKey = config.hmacKey;
+  let hmacKeys = config.hmacKey;
   if (referer) {
-    hmacKey = config.hmacKeys[referer];
+    hmacKeys = config.hmacKeys[referer];
   }
-  if (!hmacKey) {
+  if (!hmacKeys) {
     throw new Error('HMAC key not provided, referer: ' + referer);
   }
-  var hmac = crypto.createHmac('sha256', hmacKey);
-  hmac.update(body);
-  const calculatedHmac = hmac.digest('base64');
-  if (requestHmac !== calculatedHmac) {
-    console.log('HMAC mismatch, requestHmac, calculatedHmac:', requestHmac, calculatedHmac);
+  const valid = hmacKeys.split(',').some(hmacKey => {
+    var hmac = crypto.createHmac("sha256", hmacKey);
+    hmac.update(body);
+    const calculatedHmac = hmac.digest("base64");
+    return requestHmac === calculatedHmac;
+  })
+  if (!valid) {
+    console.log("HMAC mismatch, requestHmac, referer:", requestHmac, referer);
   }
-  return requestHmac === calculatedHmac;
+  return valid;
 }
 
 const handleHook = (req, res, eventType, skipHmac = false, json = false) => {
