@@ -12,6 +12,7 @@ const hmacKeys = {
   chapel: process.env.HMAC_KEY_CHAPEL,
   social: process.env.HMAC_KEY_SOCIAL,
   publishing: process.env.HMAC_KEY_PUBLISHING,
+  kabinet: process.env.HMAC_KEY_KABINET,
 };
 
 const eventStorePass = process.env.ES_PASS || "changeit";
