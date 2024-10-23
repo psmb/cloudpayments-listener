@@ -144,7 +144,7 @@ const openRoutes = {
     res.end('Nothing to see here. Walk along.');
   },
 
-  '/subscribers': (req, res) => getContent('http://' + config.eventStoreHostname + ':2113/projection/all-payments/result', {
+  '/subscribers': (req, res) => getContent('http://' + config.eventStoreHostname + ':2113/projection/all-payments2/result', {
     headers: {
       'Authorization': 'Basic ' + new Buffer(config.apiAuth).toString('base64')
     }
