@@ -87,7 +87,13 @@ const makeCache = (func, timeout) => {
   let timestamp = null;
   return (...args) => {
     if (!cache || Date.now() > timeout + timestamp) {
-      cache = func(...args);
+      const request = func(...args).catch(error => {
+        if (cache === request) {
+          cache = null;
+        }
+        throw error;
+      });
+      cache = request;
       timestamp = Date.now();
     }
     return cache;
@@ -95,8 +101,13 @@ const makeCache = (func, timeout) => {
 };
 
 const getManualData = makeCache(() => {
-  return fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQrGXpnzRNZhRH2ssd_Jmre1Bh2fwTBgtrdNo5NSnAWhfIFPbehnCMRMxd1eTW0wh9gJJjeQiH1iXW3/pub?gid=723510395&single=true&output=csv')
-    .then(res => res.text())
+  return fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQrGXpnzRNZhRH2ssd_Jmre1Bh2fwTBgtrdNo5NSnAWhfIFPbehnCMRMxd1eTW0wh9gJJjeQiH1iXW3/pub?gid=723510395&single=true&output=csv', { timeout: 20000 })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Google Sheets returned HTTP ' + res.status);
+      }
+      return res.text();
+    })
     .then(result => {
       return new Promise((resolve, reject) => {
         parse(result, {}, (err, output) => {

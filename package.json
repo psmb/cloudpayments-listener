@@ -17,7 +17,7 @@
     "node-fetch": "^2.6.0"
   },
   "scripts": {
-    "start": "yarn && babel-node app.js",
+    "start": "yarn && NODE_OPTIONS=\"${NODE_OPTIONS:-} --max-http-header-size=32768\" babel-node app.js",
     "test": "./test.sh"
   }
 }
